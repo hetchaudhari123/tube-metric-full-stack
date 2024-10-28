@@ -135,12 +135,23 @@ function Dashboard() {
         }
         // await delay(2000); // 1 second delay
         try {
-          const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-ids/${playlistId}`);
+          // const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-ids/${playlistId}`);
+          const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/get-videos-ids/${playlistId}`);
           const data = await response.json();
           if (response.ok) {
             setVideoIds(data);
             // Fetch top N videos by views
-            const topResponse = await fetch(`http://127.0.0.1:5000/api/videos/top-n-videos-views`, {
+            // const topResponse = await fetch(`http://127.0.0.1:5000/api/videos/top-n-videos-views`, {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify({
+            //     videoIds: data,
+            //     top_values: 5,
+            //   }),
+            // });
+            const topResponse = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-views`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -161,7 +172,17 @@ function Dashboard() {
             }
 
             // Fetch top N videos by likes
-            const topLikesResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-videos-likes', {
+            // const topLikesResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-videos-likes', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify({
+            //     videoIds: data,
+            //     top_values: 5,
+            //   }),
+            // });
+            const topLikesResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-likes', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -181,7 +202,17 @@ function Dashboard() {
               console.error("Error fetching top videos by likes:", topLikesData.error);
             }
             // Fetch top N videos by comments
-            const topCommentedResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-commented-videos', {
+            // const topCommentedResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-commented-videos', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify({
+            //     videoIds: data,
+            //     top_values: 5,
+            //   }),
+            // });
+            const topCommentedResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/top-n-commented-videos', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -200,7 +231,17 @@ function Dashboard() {
               console.error("Error fetching top videos by likes:", topCommentData.error);
             }
             // Fetch top vidoes by published-views
-            const topPublishedVsViewsResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-published', {
+            // const topPublishedVsViewsResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-published', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify({
+            //     videoIds: data,
+            //     top_values: 5,
+            //   }),
+            // });
+            const topPublishedVsViewsResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-published', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -218,7 +259,17 @@ function Dashboard() {
               console.error("Error fetching top videos by views vs publishedAt:", topViewsVsPublishedAt.error);
             }
             // Fetch  viewsVsMoth
-            const viewsVsMonthResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-month', {
+            // const viewsVsMonthResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-month', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify({
+            //     videoIds: data,
+            //     top_values: 5,
+            //   }),
+            // });
+            const viewsVsMonthResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-month', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -237,7 +288,17 @@ function Dashboard() {
               console.error("Error fetching views-vs-month:", viewsVsMonthData.error);
             }
             // Fetch  commentsPercentage
-            const commentsPercentResponse = await fetch('http://127.0.0.1:5000/api/videos/comments-sentiment', {
+            // const commentsPercentResponse = await fetch('http://127.0.0.1:5000/api/videos/comments-sentiment', {
+            //   method: 'POST',
+            //   headers: {
+            //     'Content-Type': 'application/json',
+            //   },
+            //   body: JSON.stringify({
+            //     videoIds: data,
+            //     top_values: 5,
+            //   }),
+            // });
+            const commentsPercentResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/comments-sentiment', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

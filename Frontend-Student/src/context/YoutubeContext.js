@@ -12,7 +12,14 @@ export const YoutubeProvider = ({ children }) => {
   // Function to fetch youtubeId from the backend
   const fetchYoutubeId = async (email) => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/get-youtube-id", {
+      // const response = await fetch("http://127.0.0.1:5000/api/get-youtube-id", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({ email }),
+      // });
+      const response = await fetch("https://tube-metrics-full-stack.onrender.com/api/get-youtube-id", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

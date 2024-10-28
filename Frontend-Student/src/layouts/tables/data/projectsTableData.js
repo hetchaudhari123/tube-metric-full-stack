@@ -62,7 +62,14 @@ export default function data() {
       if (!playlistId || playlistId.length === 0) return; // Check if playlistId is available
       console.log("Playlist.......",playlistId)
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-details-from-playlistId`, {
+        // const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-details-from-playlistId`, {
+        //   method: 'POST', // Change to POST request
+        //   headers: {
+        //     'Content-Type': 'application/json', // Specify content type
+        //   },
+        //   body: JSON.stringify({ playlistId }), // Send playlistId in the request body
+        // });
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/get-videos-details-from-playlistId`, {
           method: 'POST', // Change to POST request
           headers: {
             'Content-Type': 'application/json', // Specify content type
@@ -96,7 +103,14 @@ export default function data() {
           setThumbnails(thumbnailsList);
           // setVideoIds(videoIds);
           try {
-            const response = await fetch(`http://127.0.0.1:5000/api/videos/positive-sentiment-ratio`, {
+            // const response = await fetch(`http://127.0.0.1:5000/api/videos/positive-sentiment-ratio`, {
+            //     method: 'POST', // Change to POST request
+            //     headers: {
+            //         'Content-Type': 'application/json', // Specify content type
+            //     },
+            //     body: JSON.stringify({ videoIds }), // Send videoIds in the request body
+            // });
+            const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/positive-sentiment-ratio`, {
                 method: 'POST', // Change to POST request
                 headers: {
                     'Content-Type': 'application/json', // Specify content type
