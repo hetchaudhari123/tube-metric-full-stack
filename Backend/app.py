@@ -49,8 +49,8 @@ from google.auth.transport.requests import AuthorizedSession
 youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=os.getenv('API_KEY'))
 
 # CORS(app, resources={r"/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
-CORS(app, resources={r"/api/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
-# CORS(app, resources={r"/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
+# CORS(app, resources={r"/api/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
+CORS(app, resources={r"/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
 
 
 
