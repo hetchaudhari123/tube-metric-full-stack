@@ -73,7 +73,8 @@ function Overview() {
       // await delay(2000); // 1 second delay
       try {
         console.log("YoutubeId tried.....", youtubeId)
-        const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`);
+        // const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`);
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/${youtubeId}`);
         const data = await response.json();
 
         if (response.ok) {

@@ -44,7 +44,13 @@ const UserProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/channel/${localYoutubeId}`, {
+      // const response = await fetch(`http://127.0.0.1:5000/api/channel/${localYoutubeId}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
+      const response = await fetch(`https://tube-metrics-full-stack.onrender.com/${localYoutubeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +75,8 @@ const UserProfile = () => {
     const fetchChannelDetails = async () => {
       if (!youtubeId) return;
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`);
+        // const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`);
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/${youtubeId}`);
         const data = await response.json();
         if (response.ok) {
           setSubscriberCount(data.channel_details?.subscriberCount || 0);
