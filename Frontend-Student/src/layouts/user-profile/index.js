@@ -68,8 +68,8 @@ const UserProfile = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email: email,
-            youtubeId: youtubeId
+            email: user?.email,
+            youtubeId: localYoutubeId
           }),
         });
         if (response.ok) {
