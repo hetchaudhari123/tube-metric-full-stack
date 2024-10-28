@@ -48,7 +48,7 @@ from google.auth.transport.requests import AuthorizedSession
 # Step 5: Build the YouTube client using the authorized session
 youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=os.getenv('API_KEY'))
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": "https://tube-metric-full-stack.vercel.app/"}})
 
 MONGO_URI = os.getenv("MONGO_URI")
 

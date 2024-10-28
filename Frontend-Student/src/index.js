@@ -34,7 +34,8 @@ root.render(
          clientId="WdrInfkpicHG5Ci0sB9N51JUOkvVCqWG"
          authorizationParams={{
            //  redirect_uri: window.location.origin
-           redirect_uri: 'http://localhost:3000/dashboard',
+          //  redirect_uri: 'http://localhost:3000/dashboard',
+           redirect_uri: 'https://tube-metric-full-stack.vercel.app/dashboard',
           }}
           cacheLocation="localstorage" >
            <AuthContextProvider>
