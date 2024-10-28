@@ -19,7 +19,8 @@ const Landing = () => {
           </p>
           <div className="flex justify-center space-x-4">
             <button className={styles.btnSignin} onClick={() => loginWithRedirect()}>Log In</button>
-            <button className={styles.btnSignup} onClick={() => navigate('/login')}>Sign Up</button>
+            <button className={styles.btnSignin} onClick={() => loginWithRedirect()}>Sign Up</button>
+            {/* <button className={styles.btnSignup} onClick={() => navigate('/login')}>Sign Up</button> */}
           </div>
         </div>
       </div>
