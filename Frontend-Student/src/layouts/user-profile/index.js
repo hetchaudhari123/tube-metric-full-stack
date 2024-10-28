@@ -62,6 +62,22 @@ const UserProfile = () => {
         // setChannelDetails(data); // Save the channel details to the state
         setYoutubeId(localYoutubeId); // Update global YouTube ID with the valid one
         setLocalYoutubeId("");
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/save-youtube-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            youtubeId: youtubeId
+          }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Data saved successfully:', data);
+        } else {
+          console.error('Error saving data:', response.status, response.statusText);
+        }
       } else {
         console.error("Error fetching channel details:", data.message);
       }
