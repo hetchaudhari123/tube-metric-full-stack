@@ -61,7 +61,9 @@ db = client["youtubeDatabase"]
 collection = db["youtubeData"]
 
 
-
+@app.route('/')
+def home():
+    return "Welcome to the Tube Metrics API!"
 
 @app.route('/api/save-youtube-data', methods=['POST'])
 def save_youtube_data():
