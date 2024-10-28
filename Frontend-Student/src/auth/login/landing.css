@@ -1,0 +1,24 @@
+@keyframes gradient-animation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .bgNoise {
+    background: linear-gradient(45deg, #0f0f0f, #232323, #0f0f0f);
+    background-size: 200% 200%;
+    animation: gradient-animation 10s ease infinite;
+  }
+  
+  .bgNoise::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/gbPH7EAAAAASUVORK5CYII=');
+    opacity: 0.05; /* Adjust the opacity for more or less noise */
+    pointer-events: none;
+  }
+  
