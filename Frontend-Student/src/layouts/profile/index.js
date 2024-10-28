@@ -74,7 +74,7 @@ function Overview() {
       try {
         console.log("YoutubeId tried.....", youtubeId)
         // const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`);
-        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/${youtubeId}`);
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`);
         const data = await response.json();
 
         if (response.ok) {

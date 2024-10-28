@@ -50,7 +50,7 @@ const UserProfile = () => {
       //     'Content-Type': 'application/json',
       //   },
       // });
-      const response = await fetch(`https://tube-metrics-full-stack.onrender.com/${localYoutubeId}`, {
+      const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${localYoutubeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

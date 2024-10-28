@@ -107,7 +107,7 @@ function Dashboard() {
       try {
         console.log("YoutubeId tried.....", currentYoutubeId)
         // const response = await fetch(`http://127.0.0.1:5000/api/channel/${currentYoutubeId}`);
-        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/${currentYoutubeId}`);
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${currentYoutubeId}`);
         const data = await response.json();
 
         if (response.ok) {
