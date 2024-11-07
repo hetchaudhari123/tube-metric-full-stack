@@ -332,7 +332,8 @@ def get_video_ids_from_playlist(playlistId, helper=False):
         params = {
             'part': 'contentDetails',
             'playlistId': playlistId,
-            'maxResults': 5,
+            # 'maxResults': 5,
+            'maxResults': 50,
             'key': os.getenv('API_KEY')
         }
 
