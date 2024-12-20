@@ -71,7 +71,7 @@ const UserProfile = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          api :apiKey
+          apiKey :apiKey
         }),
       });
       const data = await response.json();
@@ -92,7 +92,7 @@ const UserProfile = () => {
           body: JSON.stringify({
             email: user?.email,
             youtubeId: localYoutubeId,
-            api:apiKey
+            apiKey:apiKey
           }),
         });
         if (response.ok) {
@@ -166,7 +166,7 @@ const UserProfile = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            api :apiKey
+            apiKey :apiKey
           }),
         });
         const data = await response.json();

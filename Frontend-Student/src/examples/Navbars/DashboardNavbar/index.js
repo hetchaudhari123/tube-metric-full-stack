@@ -68,7 +68,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ api:apiKey }),
+        body: JSON.stringify({ apiKey:apiKey }),
       });
       // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${localYoutubeId}`, {
       //   method: 'POST',

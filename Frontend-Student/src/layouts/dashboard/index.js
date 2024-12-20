@@ -129,7 +129,7 @@ function Dashboard() {
               },
               body: JSON.stringify({
                 // video_details_list: video_details_list,
-                api :apiKey
+                apiKey :apiKey
               }),
             });
             const data = await response.json();
@@ -396,7 +396,7 @@ function Dashboard() {
               },
               body: JSON.stringify({
                 // video_details_list: video_details_list,
-                api :apiKey
+                apiKey :apiKey
               }),
             });
             const videoIdsData = await response.json();
@@ -437,7 +437,7 @@ function Dashboard() {
                 fetchAndProcessData(
                     // 'http://127.0.0.1:5000/api/videos/top-n-videos-views',
                     'https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-views',
-                    { videoIds: videoIdsData, top_values: 5,api : apiKey },
+                    { videoIds: videoIdsData, top_values: 5,apiKey : apiKey },
                     prepareChartData,
                     setReportsBarChartData,
                     'reportsBarChartData'
@@ -445,7 +445,7 @@ function Dashboard() {
                 fetchAndProcessData(
                     // 'http://127.0.0.1:5000/api/videos/top-n-videos-likes',
                     'https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-likes',
-                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    { videoIds: videoIdsData, top_values: 5,apiKey:apiKey },
                     prepareLikesChartData,
                     setReportsLikesChartData,
                     'reportsLikesChartData'
@@ -453,7 +453,7 @@ function Dashboard() {
                 fetchAndProcessData(
                     // 'http://127.0.0.1:5000/api/videos/top-n-commented-videos',
                     'https://tube-metrics-full-stack.onrender.com/api/videos/top-n-commented-videos',
-                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    { videoIds: videoIdsData, top_values: 5,apiKey:apiKey },
                     preparesCommentsChartData,
                     setReportsCommentsChartData,
                     'reportsCommentsChartData'
@@ -461,7 +461,7 @@ function Dashboard() {
                 fetchAndProcessData(
                     // 'http://127.0.0.1:5000/api/videos/views-vs-published',
                     'https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-published',
-                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    { videoIds: videoIdsData, top_values: 5,apiKey:apiKey },
                     preparesPublishedViewsChartData,
                     setReportsPublishedViewsData,
                     'reportsPublishedViewsData'
@@ -469,7 +469,7 @@ function Dashboard() {
                 fetchAndProcessData(
                     // 'http://127.0.0.1:5000/api/videos/views-vs-month',
                     'https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-month',
-                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    { videoIds: videoIdsData, top_values: 5,apiKey:apiKey },
                     prepareViewsVsMonth,
                     setReportsViewsVsMonth,
                     'reportsViewsVsMonth'
@@ -477,7 +477,7 @@ function Dashboard() {
                 fetchAndProcessData(
                     // 'http://127.0.0.1:5000/api/videos/comments-sentiment',
                     'https://tube-metrics-full-stack.onrender.com/api/videos/comments-sentiment',
-                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    { videoIds: videoIdsData, top_values: 5,apiKey:apiKey },
                     preparesCommentsPercent,
                     setReportsCommentAnalysis,
                     'reportsCommentAnalysis'

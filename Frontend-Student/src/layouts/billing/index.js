@@ -121,7 +121,7 @@ function Billing() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
 
-        body: JSON.stringify({ channel_ids: ids,api :apiKey})
+        body: JSON.stringify({ channel_ids: ids,apiKey :apiKey})
       });
       // const response = await fetch("https://tube-metrics-full-stack.onrender.com/api/videos/get-channels-details", {
       //   method: "POST",
@@ -142,7 +142,7 @@ function Billing() {
       const response = await fetch("https://tube-metrics-full-stack.onrender.com/api/videos/subscriber-channel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videoDetails: channelDetails,api :apiKey })
+        body: JSON.stringify({ videoDetails: channelDetails,apiKey :apiKey })
       });
       // const response = await fetch("https://tube-metrics-full-stack.onrender.com/api/videos/subscriber-channel", {
       //   method: "POST",
@@ -169,7 +169,7 @@ function Billing() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        videoDetails: channelDetails,api :apiKey
+        videoDetails: channelDetails,apiKey :apiKey
       }),
     });
     // const videoCountResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/video-count-channel', {
@@ -207,7 +207,7 @@ function Billing() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        videoDetails: channelDetails,api :apiKey
+        videoDetails: channelDetails,apiKey :apiKey
       }),
     });
     // const viewCountResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/view-count-channel', {
@@ -243,7 +243,7 @@ function Billing() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          channelDetails: channelDetails,api :apiKey
+          channelDetails: channelDetails,apiKey :apiKey
         }),
       });
       // const viewCountResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/info-videos-playlists', {
@@ -282,7 +282,7 @@ function Billing() {
       },
       body: JSON.stringify({
         // video_details_list: video_details_list,
-        channels_info:video_details_list.channels_info,api :apiKey
+        channels_info:video_details_list.channels_info,apiKey :apiKey
       }),
     });
     // const viewCountResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/avg-view-per-video-playlists', {
@@ -324,7 +324,7 @@ function Billing() {
       },
       body: JSON.stringify({
         // video_details_list: video_details_list,
-        channels_info:channelsInfo,api :apiKey
+        channels_info:channelsInfo,apiKey :apiKey
       }),
     });
     // const viewCountResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/avg-like-per-video-playlists', {
@@ -365,7 +365,7 @@ function Billing() {
       },
       body: JSON.stringify({
         // video_details_list: video_details_list,
-        channels_info:channelsInfo,api :apiKey
+        channels_info:channelsInfo,apiKey :apiKey
       }),
     });
     // const viewCountResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/sentiment-analysis-multichannels', {

@@ -255,7 +255,7 @@ def channel_details(channel_id):
     try:
         # Get channel details
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         details = get_channel_details(channel_id,api=api)
         # print("details....",details)
         # print("details....",type(details))
@@ -366,7 +366,7 @@ def channel_details(channel_id):
 @app.route('/api/videos/get-videos-ids/<playlistId>', methods=['POST'])
 def get_video_ids_from_playlist_route(playlistId):
     request_data = request.get_json()
-    api = request_data.get('api',None)
+    api = request_data.get('apiKey',None)
     return get_video_ids_from_playlist(playlistId,api = api)
 
 
@@ -732,7 +732,7 @@ def topNVideosGraphOfTitleVsViewsBarGraph():
             return jsonify({"error": "videoIds are required"}), 400
         # Dataframe creation
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         videosData = get_video_details_from_videoIds(videoIds,api = api)
         df = pd.DataFrame(videosData)
         df_videos_formatted = dataFrameOfVideosFormatter(df)
@@ -884,7 +884,7 @@ def get_video_details_from_playlistId(api = None):
         
         try:
             request_data = request.get_json()
-            api = request_data.get('api',None)
+            api = request_data.get('apiKey',None)
             videos = get_video_ids_from_playlist(playlistId,api = api)
 
 
@@ -971,7 +971,7 @@ def topNVideosGraphOfTitleVsLikesBarGraph():
 
         # Dataframe creation
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         videosData = get_video_details_from_videoIds(videoIds,api = api)
         # print("LENGTH...",len(videosData))
         df = pd.DataFrame(videosData)
@@ -1008,7 +1008,7 @@ def topNMostCommentedVideos():
 
         # Fetch video details based on videoIds (assumed function)
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         videosData = get_video_details_from_videoIds(videoIds,api = api)
         print("the length commented...",len(videosData))
         df = pd.DataFrame(videosData)
@@ -1049,7 +1049,7 @@ def get_views_publishedTime():
 
         # Fetch video details based on videoIds (assumed function)
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         videosData = get_video_details_from_videoIds(videoIds,api = api)
         # print("WHAT IS THE LENGTH...",len(videosData))
         df_videos = pd.DataFrame(videosData)
@@ -1076,7 +1076,7 @@ def get_views_vs_month():
 
         # Fetch video details based on videoIds (assumed function)
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         videosData = get_video_details_from_videoIds(videoIds, api = api)
         df = pd.DataFrame(videosData)
         df = dataFrameOfVideosFormatter(df)
@@ -1242,7 +1242,7 @@ import math  # Import math for ceiling function
 def positive_sentiment_ratio_of_video_ids():
     try:
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         # Get data from the request body
         request_data = request.get_json()
         videoIds = request_data.get('videoIds', None)  # Get video IDs from the request
@@ -1286,7 +1286,7 @@ def positive_sentiment_ratio_of_video_ids():
 def plot_sentiment_results():
     try:
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         # Get data from the request body
         request_data = request.get_json()
         videoIds = request_data.get('videoIds', None)  # Get video IDs from the request
@@ -1452,7 +1452,7 @@ def info_videos_playlist():
         channelDetails = request_data.get('channelDetails', None)  # Get channel details from the request
         
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
 
         # Validate input
         if not channelDetails:
@@ -1565,7 +1565,7 @@ def calculate_average_likes():
 def calculate_sentiment_analysis_multichannels():
     try:
         request_data = request.get_json()
-        api = request_data.get('api',None)
+        api = request_data.get('apiKey',None)
         request_data = request.get_json()
         # print("request_data.........",request_data)
         video_details_list = request_data.get('channels_info')
