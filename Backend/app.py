@@ -49,7 +49,6 @@ from google.auth.transport.requests import AuthorizedSession
 
 # Step 5: Build the YouTube client using the authorized session
 youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=os.getenv('API_KEY'))
-# youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey='AIzaSyAh8NuvaqOpDq7FQ5cjni_ESCQItKRiOI4')
 
 CORS(app, resources={r"/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -167,6 +166,7 @@ import requests
 import os
 
 def get_channel_details(channel_id=None,api = None):
+    print("API INSIDE GET_CHANNEL_DETAILS...",api)
     if not channel_id:
         return {"error": "Channel ID is required"}, 400  # Return an error if channel_id is None
     
@@ -256,6 +256,7 @@ def channel_details(channel_id):
         # Get channel details
         request_data = request.get_json()
         api = request_data.get('apiKey',None)
+
         details = get_channel_details(channel_id,api=api)
         # print("details....",details)
         # print("details....",type(details))
@@ -440,6 +441,9 @@ def get_video_ids_from_playlist(playlistId, helper=False,api = None):
         if not playlistId:
             return jsonify({"error": "playlistId is required"}), 400
         
+        print("API INSIDE VIDEO IDS FROM PLAYLIST...",api)
+
+
         # YouTube Data API URL
         url = "https://www.googleapis.com/youtube/v3/playlistItems"
         params = {
@@ -461,25 +465,11 @@ def get_video_ids_from_playlist(playlistId, helper=False,api = None):
         response.raise_for_status()  # Raises an HTTPError for bad responses (4xx and 5xx)
         
         # Process the response
-        video_ids = [item['contentDetails']['videoId'] for item in response.json().get('items', [])]
+        obj = response.json()
+        video_ids = [item['contentDetails']['videoId'] for item in obj.get('items', [])]
         
         return video_ids
 
-        next_page_token = response.json()['nextPageToken']
-        print("the next page token...",next_page_token)
-        while next_page_token is not None:
-        
-            request = youtube.playlistItems().list(
-                part='contentDetails',
-                playlistId = playlistId,
-                maxResults=50,
-                pageToken=next_page_token
-            )
-            response = request.execute()
-            for i in response['items']:
-                video_ids.append(i['contentDetails']['videoId'])
-            next_page_token = response.get('nextPageToken')
-        return video_ids
 
     except requests.exceptions.SSLError as ssl_err:
         print("SSL Error:", ssl_err)
@@ -591,6 +581,8 @@ def get_video_ids_from_playlist(playlistId, helper=False,api = None):
 
 def get_video_details_from_videoIds(videoIds=None, playlist_id=None, max=0,api = None):
     all_data = []
+
+    print("API INSIDE GET_VIDEO_DETAILS FROM VIDEO_IDS...",api)
 
     # If videoIds is None, fetch video IDs from the playlist
     if videoIds is None:
@@ -859,7 +851,9 @@ def topNVideosGraphOfTitleVsViewsBarGraph():
 
 @app.route('/api/videos/get-videos-details-from-playlistId', methods=['POST'])
 def get_video_details_from_playlistId(api = None):
+
     all_data = []
+    print("API INSIDE GET_VIDEO_DETAILS_FROM_PLAYLISTID...",api)
     try:
         # Fetch request data
         request_data = request.get_json()  # Ensure this uses the correct Flask request object
@@ -883,7 +877,7 @@ def get_video_details_from_playlistId(api = None):
         }
         
         try:
-            request_data = request.get_json()
+            # request_data = request.get_json()
             api = request_data.get('apiKey',None)
             videos = get_video_ids_from_playlist(playlistId,api = api)
 
@@ -1100,6 +1094,7 @@ def get_views_vs_month():
 
 def get_comments(video_id, max_comments=10,api = None):
     try:
+        print("API INSIDE GET_COMMENTS...",api)
         comments = []
         url = "https://www.googleapis.com/youtube/v3/commentThreads"
         params = {
@@ -1164,7 +1159,7 @@ def analyze_sentiment(comment):
 # Function to get total count of each sentiment category for a video
 def sentiment_summary(video_id,api = None):
     # Fetch comments for the given video ID
-
+    print("API INSIDE SENTIMENT SUMMARY...",api)
     comments = get_comments(video_id,api = api)
     # Create a DataFrame for storing comments and sentiments
     df = pd.DataFrame(comments, columns=['comment'])
@@ -1192,6 +1187,7 @@ import pandas as pd
 
 def sentiment_summary_multiple_videos(video_ids,api = None):
     # Initialize counters for overall sentiment
+    print("API INSIDE SENTIMENT_SUMMARY-MULTIPLE_VIDEOS...",api)
     total_positive = 0
     total_negative = 0
     total_neutral = 0
