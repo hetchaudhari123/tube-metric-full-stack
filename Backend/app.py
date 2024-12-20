@@ -849,15 +849,17 @@ def topNVideosGraphOfTitleVsViewsBarGraph():
 
 
 
-@app.route('/api/videos/get-videos-details-from-playlistId', methods=['POST'])
-def get_video_details_from_playlistId(api = None):
+@app.route('/api/videos/get-videos-details-from-playlistId', methods=['POST']) ##Done
+def get_video_details_from_playlistId():
 
     all_data = []
     print("API INSIDE GET_VIDEO_DETAILS_FROM_PLAYLISTID...",api)
+
     try:
         # Fetch request data
         request_data = request.get_json()  # Ensure this uses the correct Flask request object
         playlistId = request_data.get('playlistId') 
+        api = request_data.get('apiKey')
         # max_results = request_data.get('max', 10) 
         max_results = request_data.get('max', 50) 
 
