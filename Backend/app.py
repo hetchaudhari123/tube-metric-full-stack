@@ -166,7 +166,7 @@ import requests
 import os
 
 def get_channel_details(channel_id=None,api = None):
-    print("API INSIDE GET_CHANNEL_DETAILS...",api)
+    # print("API INSIDE GET_CHANNEL_DETAILS...",api)
     if not channel_id:
         return {"error": "Channel ID is required"}, 400  # Return an error if channel_id is None
     
@@ -441,7 +441,7 @@ def get_video_ids_from_playlist(playlistId, helper=False,api = None):
         if not playlistId:
             return jsonify({"error": "playlistId is required"}), 400
         
-        print("API INSIDE VIDEO IDS FROM PLAYLIST...",api)
+        # print("API INSIDE VIDEO IDS FROM PLAYLIST...",api)
 
 
         # YouTube Data API URL
@@ -582,7 +582,7 @@ def get_video_ids_from_playlist(playlistId, helper=False,api = None):
 def get_video_details_from_videoIds(videoIds=None, playlist_id=None, max=0,api = None):
     all_data = []
 
-    print("API INSIDE GET_VIDEO_DETAILS FROM VIDEO_IDS...",api)
+    # print("API INSIDE GET_VIDEO_DETAILS FROM VIDEO_IDS...",api)
 
     # If videoIds is None, fetch video IDs from the playlist
     if videoIds is None:
@@ -1095,7 +1095,7 @@ def get_views_vs_month():
 
 def get_comments(video_id, max_comments=10,api = None):
     try:
-        print("API INSIDE GET_COMMENTS...",api)
+        # print("API INSIDE GET_COMMENTS...",api)
         comments = []
         url = "https://www.googleapis.com/youtube/v3/commentThreads"
         params = {
@@ -1160,7 +1160,7 @@ def analyze_sentiment(comment):
 # Function to get total count of each sentiment category for a video
 def sentiment_summary(video_id,api = None):
     # Fetch comments for the given video ID
-    print("API INSIDE SENTIMENT SUMMARY...",api)
+    # print("API INSIDE SENTIMENT SUMMARY...",api)
     comments = get_comments(video_id,api = api)
     # Create a DataFrame for storing comments and sentiments
     df = pd.DataFrame(comments, columns=['comment'])
@@ -1188,7 +1188,7 @@ import pandas as pd
 
 def sentiment_summary_multiple_videos(video_ids,api = None):
     # Initialize counters for overall sentiment
-    print("API INSIDE SENTIMENT_SUMMARY-MULTIPLE_VIDEOS...",api)
+    # print("API INSIDE SENTIMENT_SUMMARY-MULTIPLE_VIDEOS...",api)
     total_positive = 0
     total_negative = 0
     total_neutral = 0
