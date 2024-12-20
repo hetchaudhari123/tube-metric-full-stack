@@ -51,8 +51,8 @@ from google.auth.transport.requests import AuthorizedSession
 youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=os.getenv('API_KEY'))
 # youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey='AIzaSyAh8NuvaqOpDq7FQ5cjni_ESCQItKRiOI4')
 
-CORS(app, resources={r"/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
-# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+# CORS(app, resources={r"/*": {"origins": "https://tube-metric-full-stack.vercel.app"}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 
 
@@ -166,15 +166,17 @@ import os
 import requests
 import os
 
-def get_channel_details(channel_id=None,api = None):
+def get_channel_details(api,channel_id=None):
     if not channel_id:
         return {"error": "Channel ID is required"}, 400  # Return an error if channel_id is None
+    if not api:
+        return {"error": "API Key is required"}, 400  # Return an error if channel_id is None
     
     url = "https://www.googleapis.com/youtube/v3/channels"
     params = {
         'part': 'snippet,contentDetails,statistics',
         'id': channel_id,
-        'key': api if api is not None else os.getenv('API_KEY')
+        'key': os.getenv('API_KEY') 
     }
 
     try:
@@ -250,13 +252,12 @@ def get_channel_details(channel_id=None,api = None):
 #         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/channel/<channel_id>', methods=['POST'])
+@app.route('/api/channel/<channel_id>', methods=['GET'])
 def channel_details(channel_id):
     try:
         # Get channel details
-        request_data = request.get_json()
-        api = request_data.get('api',None)
-        details = get_channel_details(channel_id,api=api)
+        
+        details = get_channel_details(channel_id)
         # print("details....",details)
         # print("details....",type(details))
         # print("I AM HERE........")
@@ -266,12 +267,12 @@ def channel_details(channel_id):
             return jsonify({"error": "Uploads playlist ID not found in channel details"}), 404
 
         # Get video IDs from the uploads playlist
-        video_ids = get_video_ids_from_playlist(uploads_playlist_id, helper=True,api = api)
+        video_ids = get_video_ids_from_playlist(uploads_playlist_id, helper=True)
         if isinstance(video_ids, tuple) and video_ids[1] == 500:
             return video_ids  # Propagate the error if it is a 500 response
 
         # Get video details using the retrieved video IDs
-        video_details = get_video_details_from_videoIds(videoIds=video_ids,api=api)
+        video_details = get_video_details_from_videoIds(videoIds=video_ids)
 
         # Combine channel details with video details
         response_data = {
@@ -363,11 +364,9 @@ def channel_details(channel_id):
 
 # Testing over------------------------------>
 
-@app.route('/api/videos/get-videos-ids/<playlistId>', methods=['POST'])
+@app.route('/api/videos/get-videos-ids/<playlistId>', methods=['GET'])
 def get_video_ids_from_playlist_route(playlistId):
-    request_data = request.get_json()
-    api = request_data.get('api',None)
-    return get_video_ids_from_playlist(playlistId,api = api)
+    return get_video_ids_from_playlist(playlistId)
 
 
 # Uncomment for usage
@@ -434,7 +433,7 @@ def get_video_ids_from_playlist_route(playlistId):
 
 
 
-def get_video_ids_from_playlist(playlistId, helper=False,api = None):
+def get_video_ids_from_playlist(playlistId, helper=False):
     try:
         # Validate the input
         if not playlistId:
@@ -447,9 +446,7 @@ def get_video_ids_from_playlist(playlistId, helper=False,api = None):
             'playlistId': playlistId,
             # 'maxResults': 5,
             'maxResults': 50,
-            # 'key': os.getenv('API_KEY')
-            'key': api if api is not None else os.getenv('API_KEY')
-
+            'key': os.getenv('API_KEY')
         }
 
         # Make the API request
@@ -589,7 +586,7 @@ def get_video_ids_from_playlist(playlistId, helper=False,api = None):
 
 
 
-def get_video_details_from_videoIds(videoIds=None, playlist_id=None, max=0,api = None):
+def get_video_details_from_videoIds(videoIds=None, playlist_id=None, max=0):
     all_data = []
 
     # If videoIds is None, fetch video IDs from the playlist
@@ -602,13 +599,11 @@ def get_video_details_from_videoIds(videoIds=None, playlist_id=None, max=0,api =
             'part': 'contentDetails',
             'playlistId': playlist_id,
             'maxResults': 50,
-            # 'key': os.getenv('API_KEY')
-            'key': api if api is not None else os.getenv('API_KEY')
-
+            'key': os.getenv('API_KEY')
         }
         
         try:
-            videoIds = get_video_ids_from_playlist(playlist_id,api = api)
+            videoIds = get_video_ids_from_playlist(playlist_id)
             print("VIDEOIDS.........",len(videoIds))
             all_data = []
 
@@ -635,9 +630,7 @@ def get_video_details_from_videoIds(videoIds=None, playlist_id=None, max=0,api =
         params = {
             'part': 'statistics,contentDetails,snippet,id',
             'id': ','.join(batch_video_ids),
-            # 'key': os.getenv('API_KEY')
-        'key': api if api is not None else os.getenv('API_KEY')
-
+            'key': os.getenv('API_KEY')
         }
         try:
             # response = requests.get(url, params=params, verify=False)  # Disable SSL verification if necessary
@@ -731,9 +724,7 @@ def topNVideosGraphOfTitleVsViewsBarGraph():
         if not videoIds:
             return jsonify({"error": "videoIds are required"}), 400
         # Dataframe creation
-        request_data = request.get_json()
-        api = request_data.get('api',None)
-        videosData = get_video_details_from_videoIds(videoIds,api = api)
+        videosData = get_video_details_from_videoIds(videoIds)
         df = pd.DataFrame(videosData)
         df_videos_formatted = dataFrameOfVideosFormatter(df)
         print("LENGTH OF VIDEOSDATA...",len(videosData))
@@ -858,7 +849,7 @@ def topNVideosGraphOfTitleVsViewsBarGraph():
 
 
 @app.route('/api/videos/get-videos-details-from-playlistId', methods=['POST'])
-def get_video_details_from_playlistId(api = None):
+def get_video_details_from_playlistId():
     all_data = []
     try:
         # Fetch request data
@@ -877,15 +868,12 @@ def get_video_details_from_playlistId(api = None):
             'part': 'contentDetails',
             'playlistId': playlistId,
             'maxResults': 50,
-            # 'key': os.getenv('API_KEY')
-        'key': api if api is not None else os.getenv('API_KEY')
-
+            'key': os.getenv('API_KEY')
         }
         
         try:
-            request_data = request.get_json()
-            api = request_data.get('api',None)
-            videos = get_video_ids_from_playlist(playlistId,api = api)
+
+            videos = get_video_ids_from_playlist(playlistId)
 
 
 
@@ -910,9 +898,7 @@ def get_video_details_from_playlistId(api = None):
             params = {
                 'part': 'statistics,contentDetails,snippet',
                 'id': ','.join(batch_video_ids),
-                # 'key': os.getenv('API_KEY')
-            'key': api if api is not None else os.getenv('API_KEY')
-
+                'key': os.getenv('API_KEY')
             }
 
             try:
@@ -970,9 +956,7 @@ def topNVideosGraphOfTitleVsLikesBarGraph():
             return jsonify({"error": "videoIds are required"}), 400
 
         # Dataframe creation
-        request_data = request.get_json()
-        api = request_data.get('api',None)
-        videosData = get_video_details_from_videoIds(videoIds,api = api)
+        videosData = get_video_details_from_videoIds(videoIds)
         # print("LENGTH...",len(videosData))
         df = pd.DataFrame(videosData)
         df_videos_formatted = dataFrameOfVideosFormatter(df)
@@ -1007,9 +991,7 @@ def topNMostCommentedVideos():
             return jsonify({"error": "videoIds are required"}), 400
 
         # Fetch video details based on videoIds (assumed function)
-        request_data = request.get_json()
-        api = request_data.get('api',None)
-        videosData = get_video_details_from_videoIds(videoIds,api = api)
+        videosData = get_video_details_from_videoIds(videoIds)
         print("the length commented...",len(videosData))
         df = pd.DataFrame(videosData)
 
@@ -1048,9 +1030,7 @@ def get_views_publishedTime():
             return jsonify({"error": "videoIds are required"}), 400
 
         # Fetch video details based on videoIds (assumed function)
-        request_data = request.get_json()
-        api = request_data.get('api',None)
-        videosData = get_video_details_from_videoIds(videoIds,api = api)
+        videosData = get_video_details_from_videoIds(videoIds)
         # print("WHAT IS THE LENGTH...",len(videosData))
         df_videos = pd.DataFrame(videosData)
         df_videos = df_videos.sort_values('publishedAt',ascending=False)
@@ -1075,9 +1055,7 @@ def get_views_vs_month():
             return jsonify({"error": "videoIds are required"}), 400
 
         # Fetch video details based on videoIds (assumed function)
-        request_data = request.get_json()
-        api = request_data.get('api',None)
-        videosData = get_video_details_from_videoIds(videoIds, api = api)
+        videosData = get_video_details_from_videoIds(videoIds)
         df = pd.DataFrame(videosData)
         df = dataFrameOfVideosFormatter(df)
 
@@ -1098,7 +1076,7 @@ def get_views_vs_month():
 
 
 
-def get_comments(video_id, max_comments=10,api = None):
+def get_comments(video_id, max_comments=10):
     try:
         comments = []
         url = "https://www.googleapis.com/youtube/v3/commentThreads"
@@ -1107,9 +1085,7 @@ def get_comments(video_id, max_comments=10,api = None):
             'videoId': video_id,
             'textFormat': 'plainText',
             'maxResults': 10,  # Limit the number of comments to fetch for analysis
-            # 'key': os.getenv('API_KEY')/
-        'key': api if api is not None else os.getenv('API_KEY')
-
+            'key': os.getenv('API_KEY')
         }
 
         # Initial request to fetch comments
@@ -1162,10 +1138,9 @@ def analyze_sentiment(comment):
         return 'Neutral'
 
 # Function to get total count of each sentiment category for a video
-def sentiment_summary(video_id,api = None):
+def sentiment_summary(video_id):
     # Fetch comments for the given video ID
-
-    comments = get_comments(video_id,api = api)
+    comments = get_comments(video_id)
     # Create a DataFrame for storing comments and sentiments
     df = pd.DataFrame(comments, columns=['comment'])
     
@@ -1190,7 +1165,7 @@ def sentiment_summary(video_id,api = None):
 # Function to fetch comments for a list of video IDs and calculate sentiment percentages
 import pandas as pd
 
-def sentiment_summary_multiple_videos(video_ids,api = None):
+def sentiment_summary_multiple_videos(video_ids):
     # Initialize counters for overall sentiment
     total_positive = 0
     total_negative = 0
@@ -1200,7 +1175,7 @@ def sentiment_summary_multiple_videos(video_ids,api = None):
     # Loop through each video ID
     for video_id in video_ids:
         # Fetch comments for the given video ID
-        comments = get_comments(video_id,api = api)
+        comments = get_comments(video_id)
 
         # Create a DataFrame to store the comments
         df = pd.DataFrame(comments, columns=['comment'])
@@ -1241,8 +1216,6 @@ import math  # Import math for ceiling function
 @app.route('/api/videos/positive-sentiment-ratio', methods=['POST'])
 def positive_sentiment_ratio_of_video_ids():
     try:
-        request_data = request.get_json()
-        api = request_data.get('api',None)
         # Get data from the request body
         request_data = request.get_json()
         videoIds = request_data.get('videoIds', None)  # Get video IDs from the request
@@ -1255,7 +1228,7 @@ def positive_sentiment_ratio_of_video_ids():
 
         # Get comments for each video ID and analyze sentiment
         for video_id in videoIds:
-            comments = get_comments(video_id,api = api)  # Fetch comments for the specific video ID
+            comments = get_comments(video_id)  # Fetch comments for the specific video ID
             df = pd.DataFrame(comments, columns=['comment'])
 
             # Perform sentiment analysis on each comment
@@ -1285,8 +1258,6 @@ def positive_sentiment_ratio_of_video_ids():
 @app.route('/api/videos/comments-sentiment', methods=['POST'])
 def plot_sentiment_results():
     try:
-        request_data = request.get_json()
-        api = request_data.get('api',None)
         # Get data from the request body
         request_data = request.get_json()
         videoIds = request_data.get('videoIds', None)  # Get video IDs from the request
@@ -1296,7 +1267,7 @@ def plot_sentiment_results():
             return jsonify({"error": "videoIds are required"}), 400
 
         # Fetch video details based on videoIds (assumed function)
-        sorted_sentiment_df = sentiment_summary_multiple_videos(videoIds,api = api)
+        sorted_sentiment_df = sentiment_summary_multiple_videos(videoIds)
         return jsonify(sorted_sentiment_df), 200
         
     except Exception as e:
@@ -1309,7 +1280,7 @@ import os
 import requests
 
 @app.route('/api/videos/get-channels-details', methods=['POST'])
-def get_channels_details(api = None):
+def get_channels_details():
     # Get the JSON data from the request
     data = request.get_json()
     channel_ids = data.get('channel_ids', None)  # Extract channel_ids
@@ -1326,9 +1297,7 @@ def get_channels_details(api = None):
         params = {
             'part': 'snippet,contentDetails,statistics',
             'id': ','.join(channel_ids),
-            # 'key': os.getenv('API_KEY')
-        'key': api if api is not None else os.getenv('API_KEY')
-
+            'key': os.getenv('API_KEY')
         }
 
         # response = requests.get(url, params=params, verify=False)  # Disable SSL verification if necessary
@@ -1451,9 +1420,6 @@ def info_videos_playlist():
         request_data = request.get_json()
         channelDetails = request_data.get('channelDetails', None)  # Get channel details from the request
         
-        request_data = request.get_json()
-        api = request_data.get('api',None)
-
         # Validate input
         if not channelDetails:
             return jsonify({"error": "channelDetails are required"}), 400
@@ -1479,8 +1445,7 @@ def info_videos_playlist():
             # for playlist_id in row['all_videos_playlist']:
                 # Check if the data is already cached
                 # Call the function with the current playlist_id and append the result to the list
-            
-            video_details = get_video_details_from_videoIds(playlist_id=row['all_videos_playlist'], max=10,api = api)
+            video_details = get_video_details_from_videoIds(playlist_id=row['all_videos_playlist'], max=10)
             # video_cache[row['all_videos_playlist']] = video_details  # Cache the result
             
             channel_info["videos"] = (video_details)
@@ -1565,8 +1530,6 @@ def calculate_average_likes():
 def calculate_sentiment_analysis_multichannels():
     try:
         request_data = request.get_json()
-        api = request_data.get('api',None)
-        request_data = request.get_json()
         # print("request_data.........",request_data)
         video_details_list = request_data.get('channels_info')
         print("video_details_list..........",video_details_list)
@@ -1592,7 +1555,7 @@ def calculate_sentiment_analysis_multichannels():
             videoIds = [video['video_id'] for video in videoList]
 
             # Call your sentiment analysis function
-            sentiment_summary = sentiment_summary_multiple_videos(videoIds,api = api)
+            sentiment_summary = sentiment_summary_multiple_videos(videoIds)
             sentiment_analysis_results.append({'title': title, 'sentiment': sentiment_summary})
 
         return jsonify({"sentimentAnalysis": sentiment_analysis_results}), 200

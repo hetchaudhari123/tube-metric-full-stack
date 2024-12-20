@@ -16,6 +16,9 @@ import { AuthContext } from "context";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useYoutube } from "context/YoutubeContext";
 
+// LINK = 'http://127.0.0.1:5000/api/channel/'
+
+
 function DashboardNavbar({ absolute, light, isMini }) {
   const authContext = useContext(AuthContext);
   const [navbarType, setNavbarType] = useState();
@@ -25,7 +28,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const route = useLocation().pathname.split("/").slice(1);
   let navigate = useNavigate();
   const { user, loginWithRedirect, isAuthenticated, logout } = useAuth0();
-  const { youtubeId, setYoutubeId,currentYoutubeId,setCurrentYoutubeId } = useYoutube();
+  const { youtubeId, setYoutubeId,currentYoutubeId,setCurrentYoutubeId,apiKey,setApiKey } = useYoutube();
   // const [localYoutubeId, setLocalYoutubeId] = useState(youtubeId ?? ""); 
   const [localYoutubeId, setLocalYoutubeId] = useState(currentYoutubeId ?? ""); 
   // State for YouTube ID input
@@ -60,17 +63,19 @@ function DashboardNavbar({ absolute, light, isMini }) {
     e.preventDefault();
     try {
       // const response = await fetch(`http://127.0.0.1:5000/api/channel/${localYoutubeId}`, {
-      //   method: 'GET',
+      const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${localYoutubeId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ api:apiKey }),
+      });
+      // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${localYoutubeId}`, {
+      //   method: 'POST',
       //   headers: {
       //     'Content-Type': 'application/json',
       //   },
       // });
-      const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${localYoutubeId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
       const data = await response.json();
       if (response.ok) {
         console.log("Channel details retrieved:", data);

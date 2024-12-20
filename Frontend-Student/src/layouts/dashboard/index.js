@@ -22,11 +22,12 @@ function Dashboard() {
   // const { user } = useAuth();
   const { user, isAuthenticated } = useAuth0(); // Access Auth0 user information
 
-  const { youtubeId,setYoutubeId,playlistId, setPlaylistId, videoIds, setVideoIds, currentYoutubeId, setCurrentYoutubeId } = useYoutube();
+  const { youtubeId,setYoutubeId,playlistId, setPlaylistId, videoIds, setVideoIds, currentYoutubeId, setCurrentYoutubeId,apiKey,setApiKey } = useYoutube();
   const [subscriberCount, setSubscriberCount] = useState(null);
   const [views, setViews] = useState(null);
   const [videoCount, setVideoCount] = useState(null);
   const [country, setCountry] = useState(null);
+
   const [reportsBarChartData, setReportsBarChartData] = useState({
     labels: [], // Initially empty array for labels
     datasets: [
@@ -97,236 +98,403 @@ function Dashboard() {
 
   useEffect(() => {  
     const fetchChannelDetails = async () => {
-      // let cnt = 1;
-      // while(cnt<=2){
-      if (!currentYoutubeId || currentYoutubeId === '') {
-        console.log("Empty current youtube id.........", currentYoutubeId)
-        setCurrentYoutubeId(youtubeId)
-        // return
-      }
-      // await delay(2000); // 1 second delay
-      try {
-        // console.log("YoutubeId tried.....", currentYoutubeId)
-        // const response = await fetch(`http://127.0.0.1:5000/api/channel/${currentYoutubeId}`);
-        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${currentYoutubeId || youtubeId}`);
-        const data = await response.json();
-
-        if (response.ok) {
-          setSubscriberCount(data.channel_details?.subscriberCount || 0);
-          setViews(data.channel_details?.viewCount || 0);
-          setVideoCount(data.channel_details?.videoCount || 0);
-          setCountry(data.channel_details?.country || '');
-          setPlaylistId(data.channel_details?.all_videos_playlist || '');
-          // cnt=2;
-        } else {
-          console.error("Error fetching channel details:", data.message);
+        if (!currentYoutubeId || currentYoutubeId === '') {
+            console.log("Empty current youtube id.........", currentYoutubeId);
+            setCurrentYoutubeId(youtubeId);
+            return;
         }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-      // cnt++;
-    // }
+
+        // Check localStorage for existing data
+        const storedData = localStorage.getItem(`channelDetails-${currentYoutubeId}`);
+        if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            setSubscriberCount(parsedData.subscriberCount || 0);
+            setViews(parsedData.viewCount || 0);
+            setVideoCount(parsedData.videoCount || 0);
+            setCountry(parsedData.country || '');
+            setPlaylistId(parsedData.playlistId || '');
+            console.log("Loaded data from localStorage:", parsedData);
+            return;
+        }
+
+        // If no data in localStorage, fetch from API
+        try {
+            console.log("Fetching data from API for youtubeId:", currentYoutubeId);
+            // const response = await fetch(`http://127.0.0.1:5000/api/channel/${currentYoutubeId}`);
+            // const response = await fetch(`http://127.0.0.1:5000/api/channel/${currentYoutubeId}`, {
+            const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${currentYoutubeId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                // video_details_list: video_details_list,
+                api :apiKey
+              }),
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                // Save API response to state
+                const channelDetails = {
+                    subscriberCount: data.channel_details?.subscriberCount || 0,
+                    viewCount: data.channel_details?.viewCount || 0,
+                    videoCount: data.channel_details?.videoCount || 0,
+                    country: data.channel_details?.country || '',
+                    playlistId: data.channel_details?.all_videos_playlist || ''
+                };
+
+                setSubscriberCount(channelDetails.subscriberCount);
+                setViews(channelDetails.viewCount);
+                setVideoCount(channelDetails.videoCount);
+                setCountry(channelDetails.country);
+                setPlaylistId(channelDetails.playlistId);
+
+                // Store in localStorage
+                localStorage.setItem(`channelDetails-${currentYoutubeId}`, JSON.stringify(channelDetails));
+                console.log("Stored data in localStorage:", channelDetails);
+            } else {
+                console.error("Error fetching channel details:", data.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
     };
+
     fetchChannelDetails();
-  }, [currentYoutubeId]);
+}, [currentYoutubeId]);
+
+
+  // useEffect(() => {
+  //   const fetchVideosIdsAndTopN = async () => {
+  //       if (!playlistId) {
+  //         return;
+  //       }
+  //       // await delay(2000); // 1 second delay
+  //       try {
+  //         const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-ids/${playlistId}`);
+  //         // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/get-videos-ids/${playlistId}`);
+  //         const data = await response.json();
+  //         if (response.ok) {
+  //           setVideoIds(data);
+  //           // Fetch top N videos by views
+  //           const topResponse = await fetch(`http://127.0.0.1:5000/api/videos/top-n-videos-views`, {
+  //             method: 'POST',
+  //             headers: {
+  //               'Content-Type': 'application/json',
+  //             },
+  //             body: JSON.stringify({
+  //               videoIds: data,
+  //               top_values: 5,
+  //             }),
+  //           });
+  //           // const topResponse = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-views`, {
+  //           //   method: 'POST',
+  //           //   headers: {
+  //           //     'Content-Type': 'application/json',
+  //           //   },
+  //           //   body: JSON.stringify({
+  //           //     videoIds: data,
+  //           //     top_values: 5,
+  //           //   }),
+  //           // });
+  //           const topData = await topResponse.json();
+
+  //           if (topResponse.ok) {
+  //             const chartData = prepareChartData(topData);
+  //             console.log("CHART DATA.........", chartData)
+  //             setReportsBarChartData(chartData);
+  //           } else {
+  //             console.error("Error fetching top videos:", topData.error);
+  //           }
+
+  //           // Fetch top N videos by likes
+  //           const topLikesResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-videos-likes', {
+  //             method: 'POST',
+  //             headers: {
+  //               'Content-Type': 'application/json',
+  //             },
+  //             body: JSON.stringify({
+  //               videoIds: data,
+  //               top_values: 5,
+  //             }),
+  //           });
+  //           // const topLikesResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-likes', {
+  //           //   method: 'POST',
+  //           //   headers: {
+  //           //     'Content-Type': 'application/json',
+  //           //   },
+  //           //   body: JSON.stringify({
+  //           //     videoIds: data,
+  //           //     top_values: 5,
+  //           //   }),
+  //           // });
+  //           const topLikesData = await topLikesResponse.json();
+
+  //           if (topLikesResponse.ok) {
+  //             const likesChartData = prepareLikesChartData(topLikesData);
+  //             // console.log("Likes Chart Data...", likesChartData)
+  //             setReportsLikesChartData(likesChartData);
+  //           } else {
+  //             console.error("Error fetching top videos by likes:", topLikesData.error);
+  //           }
+  //           // Fetch top N videos by comments
+  //           const topCommentedResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-commented-videos', {
+  //             method: 'POST',
+  //             headers: {
+  //               'Content-Type': 'application/json',
+  //             },
+  //             body: JSON.stringify({
+  //               videoIds: data,
+  //               top_values: 5,
+  //             }),
+  //           });
+  //           // const topCommentedResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/top-n-commented-videos', {
+  //           //   method: 'POST',
+  //           //   headers: {
+  //           //     'Content-Type': 'application/json',
+  //           //   },
+  //           //   body: JSON.stringify({
+  //           //     videoIds: data,
+  //           //     top_values: 5,
+  //           //   }),
+  //           // });
+  //           const topCommentData = await topCommentedResponse.json();
+
+  //           if (topCommentedResponse.ok) {
+  //             const recentChartData = preparesCommentsChartData(topCommentData);
+  //             setReportsCommentsChartData(recentChartData);
+  //           } else {
+  //             console.error("Error fetching top videos by likes:", topCommentData.error);
+  //           }
+  //           // Fetch top vidoes by published-views
+  //           const topPublishedVsViewsResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-published', {
+  //             method: 'POST',
+  //             headers: {
+  //               'Content-Type': 'application/json',
+  //             },
+  //             body: JSON.stringify({
+  //               videoIds: data,
+  //               top_values: 5,
+  //             }),
+  //           });
+  //           // const topPublishedVsViewsResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-published', {
+  //           //   method: 'POST',
+  //           //   headers: {
+  //           //     'Content-Type': 'application/json',
+  //           //   },
+  //           //   body: JSON.stringify({
+  //           //     videoIds: data,
+  //           //     top_values: 5,
+  //           //   }),
+  //           // });
+  //           const topViewsVsPublishedAt = await topPublishedVsViewsResponse.json();
+  //           if (topCommentedResponse.ok) {
+  //             const recentChartData = preparesPublishedViewsChartData(topViewsVsPublishedAt);
+  //             setReportsPublishedViewsData(recentChartData);
+  //           } else {
+  //             console.error("Error fetching top videos by views vs publishedAt:", topViewsVsPublishedAt.error);
+  //           }
+  //           // Fetch  viewsVsMoth
+  //           const viewsVsMonthResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-month', {
+  //             method: 'POST',
+  //             headers: {
+  //               'Content-Type': 'application/json',
+  //             },
+  //             body: JSON.stringify({
+  //               videoIds: data,
+  //               top_values: 5,
+  //             }),
+  //           });
+  //           // const viewsVsMonthResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-month', {
+  //           //   method: 'POST',
+  //           //   headers: {
+  //           //     'Content-Type': 'application/json',
+  //           //   },
+  //           //   body: JSON.stringify({
+  //           //     videoIds: data,
+  //           //     top_values: 5,
+  //           //   }),
+  //           // });
+  //           const viewsVsMonthData = await viewsVsMonthResponse.json();
+  //           if (viewsVsMonthResponse.ok) {
+  //             const viewsVsMonthChartData = prepareViewsVsMonth(viewsVsMonthData);
+  //             setReportsViewsVsMonth(viewsVsMonthChartData);
+  //             // console.log("Views vs Month....", viewsVsMonthChartData)
+  //           } else {
+  //             console.error("Error fetching views-vs-month:", viewsVsMonthData.error);
+  //           }
+  //           // Fetch  commentsPercentage
+  //           const commentsPercentResponse = await fetch('http://127.0.0.1:5000/api/videos/comments-sentiment', {
+  //             method: 'POST',
+  //             headers: {
+  //               'Content-Type': 'application/json',
+  //             },
+  //             body: JSON.stringify({
+  //               videoIds: data,
+  //               top_values: 5,
+  //             }),
+  //           });
+  //           // const commentsPercentResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/comments-sentiment', {
+  //           //   method: 'POST',
+  //           //   headers: {
+  //           //     'Content-Type': 'application/json',
+  //           //   },
+  //           //   body: JSON.stringify({
+  //           //     videoIds: data,
+  //           //     top_values: 5,
+  //           //   }),
+  //           // });
+  //           const commentsPercentData = await commentsPercentResponse.json();
+  //           if (commentsPercentResponse.ok) {
+  //             const commentsPercentChartData = preparesCommentsPercent(commentsPercentData);
+  //             setReportsCommentAnalysis(commentsPercentChartData);
+  //             // console.log("comments percentage....", commentsPercentChartData)
+  //             // cnt=2;
+  //           } else {
+  //             console.error("Error fetching comments-percentage:", commentsPercentData.error);
+  //           }
+  //         } else {
+  //           console.error("Error fetching video IDs:", data.message);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error:", error);
+  //       }
+  //   };
+  //   fetchVideosIdsAndTopN();
+  // }, [playlistId]);
+  
   useEffect(() => {
     const fetchVideosIdsAndTopN = async () => {
         if (!playlistId) {
-          return;
+            console.log("Playlist ID is not available.");
+            return;
         }
-        // await delay(2000); // 1 second delay
+
+        const cachedData = localStorage.getItem(`playlist_${playlistId}`);
+        if (cachedData) {
+            console.log("Using cached data for playlist:", playlistId);
+            const parsedData = JSON.parse(cachedData);
+            setVideoIds(parsedData.videoIds || []);
+            setReportsBarChartData(parsedData.reportsBarChartData || []);
+            setReportsLikesChartData(parsedData.reportsLikesChartData || []);
+            setReportsCommentsChartData(parsedData.reportsCommentsChartData || []);
+            setReportsPublishedViewsData(parsedData.reportsPublishedViewsData || []);
+            setReportsViewsVsMonth(parsedData.reportsViewsVsMonth || []);
+            setReportsCommentAnalysis(parsedData.reportsCommentAnalysis || []);
+            return;
+        }
+
         try {
-          // const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-ids/${playlistId}`);
-          const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/get-videos-ids/${playlistId}`);
-          const data = await response.json();
-          if (response.ok) {
-            setVideoIds(data);
-            // Fetch top N videos by views
-            // const topResponse = await fetch(`http://127.0.0.1:5000/api/videos/top-n-videos-views`, {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify({
-            //     videoIds: data,
-            //     top_values: 5,
-            //   }),
-            // });
-            const topResponse = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-views`, {
+            // Fetch video IDs
+            // const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-ids/${playlistId}`);
+            // const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-ids/${playlistId}`, {
+            const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/get-videos-ids/${playlistId}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                videoIds: data,
-                top_values: 5,
+                // video_details_list: video_details_list,
+                api :apiKey
               }),
             });
-            const topData = await topResponse.json();
+            const videoIdsData = await response.json();
 
-            if (topResponse.ok) {
-              const chartData = prepareChartData(topData);
-              console.log("CHART DATA.........", chartData)
-              setReportsBarChartData(chartData);
-            } else {
-              console.error("Error fetching top videos:", topData.error);
+            if (!response.ok) {
+                console.error("Error fetching video IDs:", videoIdsData.message);
+                return;
             }
 
-            // Fetch top N videos by likes
-            // const topLikesResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-videos-likes', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify({
-            //     videoIds: data,
-            //     top_values: 5,
-            //   }),
-            // });
-            const topLikesResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-likes', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                videoIds: data,
-                top_values: 5,
-              }),
-            });
-            const topLikesData = await topLikesResponse.json();
+            setVideoIds(videoIdsData);
 
-            if (topLikesResponse.ok) {
-              const likesChartData = prepareLikesChartData(topLikesData);
-              // console.log("Likes Chart Data...", likesChartData)
-              setReportsLikesChartData(likesChartData);
-            } else {
-              console.error("Error fetching top videos by likes:", topLikesData.error);
-            }
-            // Fetch top N videos by comments
-            // const topCommentedResponse = await fetch('http://127.0.0.1:5000/api/videos/top-n-commented-videos', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify({
-            //     videoIds: data,
-            //     top_values: 5,
-            //   }),
-            // });
-            const topCommentedResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/top-n-commented-videos', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                videoIds: data,
-                top_values: 5,
-              }),
-            });
-            const topCommentData = await topCommentedResponse.json();
+            // Prepare an object to store fetched data
+            const newCacheData = { videoIds: videoIdsData };
 
-            if (topCommentedResponse.ok) {
-              const recentChartData = preparesCommentsChartData(topCommentData);
-              setReportsCommentsChartData(recentChartData);
-            } else {
-              console.error("Error fetching top videos by likes:", topCommentData.error);
-            }
-            // Fetch top vidoes by published-views
-            // const topPublishedVsViewsResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-published', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify({
-            //     videoIds: data,
-            //     top_values: 5,
-            //   }),
-            // });
-            const topPublishedVsViewsResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-published', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                videoIds: data,
-                top_values: 5,
-              }),
-            });
-            const topViewsVsPublishedAt = await topPublishedVsViewsResponse.json();
-            if (topCommentedResponse.ok) {
-              const recentChartData = preparesPublishedViewsChartData(topViewsVsPublishedAt);
-              setReportsPublishedViewsData(recentChartData);
-            } else {
-              console.error("Error fetching top videos by views vs publishedAt:", topViewsVsPublishedAt.error);
-            }
-            // Fetch  viewsVsMoth
-            // const viewsVsMonthResponse = await fetch('http://127.0.0.1:5000/api/videos/views-vs-month', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify({
-            //     videoIds: data,
-            //     top_values: 5,
-            //   }),
-            // });
-            const viewsVsMonthResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-month', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                videoIds: data,
-                top_values: 5,
-              }),
-            });
-            const viewsVsMonthData = await viewsVsMonthResponse.json();
-            if (viewsVsMonthResponse.ok) {
-              const viewsVsMonthChartData = prepareViewsVsMonth(viewsVsMonthData);
-              setReportsViewsVsMonth(viewsVsMonthChartData);
-              // console.log("Views vs Month....", viewsVsMonthChartData)
-            } else {
-              console.error("Error fetching views-vs-month:", viewsVsMonthData.error);
-            }
-            // Fetch  commentsPercentage
-            // const commentsPercentResponse = await fetch('http://127.0.0.1:5000/api/videos/comments-sentiment', {
-            //   method: 'POST',
-            //   headers: {
-            //     'Content-Type': 'application/json',
-            //   },
-            //   body: JSON.stringify({
-            //     videoIds: data,
-            //     top_values: 5,
-            //   }),
-            // });
-            const commentsPercentResponse = await fetch('https://tube-metrics-full-stack.onrender.com/api/videos/comments-sentiment', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                videoIds: data,
-                top_values: 5,
-              }),
-            });
-            const commentsPercentData = await commentsPercentResponse.json();
-            if (commentsPercentResponse.ok) {
-              const commentsPercentChartData = preparesCommentsPercent(commentsPercentData);
-              setReportsCommentAnalysis(commentsPercentChartData);
-              // console.log("comments percentage....", commentsPercentChartData)
-              // cnt=2;
-            } else {
-              console.error("Error fetching comments-percentage:", commentsPercentData.error);
-            }
-          } else {
-            console.error("Error fetching video IDs:", data.message);
-          }
+            // Helper function to fetch and process chart data
+
+            const fetchAndProcessData = async (url, body, processFunction, setState, key) => {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    const chartData = processFunction(result);
+                    setState(chartData);
+                    newCacheData[key] = chartData; // Store data in the cache object
+                } else {
+                    console.error(`Error fetching data for ${key}:`, result.error);
+                }
+            };
+
+            // Fetch and process all chart data
+            await Promise.all([
+                fetchAndProcessData(
+                    // 'http://127.0.0.1:5000/api/videos/top-n-videos-views',
+                    'https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-views',
+                    { videoIds: videoIdsData, top_values: 5,api : apiKey },
+                    prepareChartData,
+                    setReportsBarChartData,
+                    'reportsBarChartData'
+                ),
+                fetchAndProcessData(
+                    // 'http://127.0.0.1:5000/api/videos/top-n-videos-likes',
+                    'https://tube-metrics-full-stack.onrender.com/api/videos/top-n-videos-likes',
+                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    prepareLikesChartData,
+                    setReportsLikesChartData,
+                    'reportsLikesChartData'
+                ),
+                fetchAndProcessData(
+                    // 'http://127.0.0.1:5000/api/videos/top-n-commented-videos',
+                    'https://tube-metrics-full-stack.onrender.com/api/videos/top-n-commented-videos',
+                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    preparesCommentsChartData,
+                    setReportsCommentsChartData,
+                    'reportsCommentsChartData'
+                ),
+                fetchAndProcessData(
+                    // 'http://127.0.0.1:5000/api/videos/views-vs-published',
+                    'https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-published',
+                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    preparesPublishedViewsChartData,
+                    setReportsPublishedViewsData,
+                    'reportsPublishedViewsData'
+                ),
+                fetchAndProcessData(
+                    // 'http://127.0.0.1:5000/api/videos/views-vs-month',
+                    'https://tube-metrics-full-stack.onrender.com/api/videos/views-vs-month',
+                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    prepareViewsVsMonth,
+                    setReportsViewsVsMonth,
+                    'reportsViewsVsMonth'
+                ),
+                fetchAndProcessData(
+                    // 'http://127.0.0.1:5000/api/videos/comments-sentiment',
+                    'https://tube-metrics-full-stack.onrender.com/api/videos/comments-sentiment',
+                    { videoIds: videoIdsData, top_values: 5,api:apiKey },
+                    preparesCommentsPercent,
+                    setReportsCommentAnalysis,
+                    'reportsCommentAnalysis'
+                )
+            ]);
+
+            // Store the final data in localStorage
+            localStorage.setItem(`playlist_${playlistId}`, JSON.stringify(newCacheData));
         } catch (error) {
-          console.error("Error:", error);
+            console.error("Error fetching videos and charts:", error);
         }
     };
+
     fetchVideosIdsAndTopN();
-  }, [playlistId]);
+}, [playlistId]);
+
+
   const prepareChartData = (data) => {
     const labels = data.map(item => item.title);
     const viewCounts = data.map(item => item.viewCount);
@@ -552,7 +720,7 @@ function Dashboard() {
 
               </MDBox>
             </Grid>
-            <Grid item xs={12}> {/* Changed this to xs={12} to take full width */}
+            <Grid item xs={12}> 
               <MDBox mb={3}>
                 <PieChart
                   icon={{ color: "info", component: "pie_chart" }}

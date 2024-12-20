@@ -9,16 +9,11 @@ export const YoutubeProvider = ({ children }) => {
   const [videoIds, setVideoIds] = useState([]);
   const [playlistId, setPlaylistId] = useState();
   const [currentYoutubeId,setCurrentYoutubeId] = useState()
+  const [apiKey,setApiKey] = useState(null)
   // Function to fetch youtubeId from the backend
   const fetchYoutubeId = async (email) => {
     try {
       // const response = await fetch("http://127.0.0.1:5000/api/get-youtube-id", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ email }),
-      // });
       const response = await fetch("https://tube-metrics-full-stack.onrender.com/api/get-youtube-id", {
         method: "POST",
         headers: {
@@ -27,10 +22,14 @@ export const YoutubeProvider = ({ children }) => {
         body: JSON.stringify({ email }),
       });
       const data = await response.json();
-      console.log("data...........",data.youtubeId)
+      console.log("youtubeId data fetched is....",data.youtubeId)
       if (response.ok) {
         setYoutubeId(data.youtubeId);
         setCurrentYoutubeId(data.youtubeId);
+        if (data.apiKey) {
+          setApiKey(data.apiKey);
+        }
+        
       } else {
         console.error("Failed to fetch youtubeId:", data.message);
       }
@@ -65,8 +64,11 @@ export const YoutubeProvider = ({ children }) => {
     const storedCurrentYoutubeId = localStorage.getItem("currentYoutubeId");
     if (storedYoutubeId) setYoutubeId(storedYoutubeId);
     if (storedCurrentYoutubeId) setCurrentYoutubeId(storedCurrentYoutubeId);
-  
-    if (isAuthenticated && user?.email && !storedYoutubeId) {
+    // if (isAuthenticated && user?.email && (!storedYoutubeId )) {
+      //   fetchYoutubeId(user.email);
+      // }
+      if (isAuthenticated && user?.email) {
+      console.log("INSIDE YOUTUBE PROVIDER.........")
       fetchYoutubeId(user.email);
     }
   }, [isAuthenticated, user]);
@@ -89,7 +91,9 @@ export const YoutubeProvider = ({ children }) => {
         setPlaylistId,
         fetchYoutubeId, // Optional manual fetch
         currentYoutubeId,
-        setCurrentYoutubeId
+        setCurrentYoutubeId,
+        apiKey,
+        setApiKey
       }}
     >
       {children}

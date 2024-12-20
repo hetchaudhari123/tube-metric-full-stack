@@ -14,38 +14,88 @@ import logoAtlassian from "assets/images/small-logos/logo-atlassian.svg";
 import logoSlack from "assets/images/small-logos/logo-slack.svg";
 import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
 import logoInvesion from "assets/images/small-logos/logo-invision.svg";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useYoutube } from "context/YoutubeContext";
 export default function data() {
-  const { youtubeId, setYoutubeId,currentYoutubeId,setCurrentYoutubeId } = useYoutube();
+  const { youtubeId, setYoutubeId, currentYoutubeId, setCurrentYoutubeId } = useYoutube();
   // const {videoIds,setVideoIds} = useState([]);
   const [subscriberCount, setSubscriberCount] = useState(null);
   const [views, setViews] = useState([]);
   const [likes, setLikes] = useState([]);
-  const [comments,setComments] = useState([]);
-  const [commentRatio,setCommentRatio] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [commentRatio, setCommentRatio] = useState([]);
   const [videoCount, setVideoCount] = useState([]);
   const [country, setCountry] = useState(null);
-  const [playlistId,setPlaylistId] = useState([])
-  const [titles,setTitles] = useState([])
-  const [thumbnails,setThumbnails] = useState([])
-  const [positiveRatio,setPositiveRatio] = useState([])
-  
+  const [playlistId, setPlaylistId] = useState([])
+  const [titles, setTitles] = useState([])
+  const [thumbnails, setThumbnails] = useState([])
+  // const [positiveRatio,setPositiveRatio] = useState([])
 
-  useEffect(()=>{
+
+  // useEffect(()=>{
+  //   const fetchChannelDetails = async () => {
+  //     if (!youtubeId) return;
+
+  //     try {
+  //       const response = await fetch(`http://127.0.0.1:5000/api/channel/${currentYoutubeId || youtubeId}`);
+  //       // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${currentYoutubeId}`);
+  //       const data = await response.json();
+  //       if (response.ok) {
+  //         setSubscriberCount(data.channel_details?.subscriberCount || 0);
+  //         setViews(data.channel_details?.viewCount || 0);
+  //         setVideoCount(data.channel_details?.videoCount || 0);
+  //         setCountry(data.channel_details?.country || '');
+  //         setPlaylistId(data.channel_details?.all_videos_playlist || '');
+  //       } else {
+  //         console.error("Error fetching channel details:", data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error:", error);
+  //     }
+  //   };
+
+
+  //   fetchChannelDetails();
+  // },[youtubeId])
+
+  useEffect(() => {
     const fetchChannelDetails = async () => {
       if (!youtubeId) return;
+
+      const storedData = localStorage.getItem(`channelDetails-${currentYoutubeId}`);
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        setSubscriberCount(parsedData.subscriberCount || 0);
+        setViews(parsedData.viewCount || 0);
+        setVideoCount(parsedData.videoCount || 0);
+        setCountry(parsedData.country || '');
+        setPlaylistId(parsedData.playlistId || '');
+        console.log("Loaded data from localStorage:", parsedData);
+        return;
+      }
 
       try {
         // const response = await fetch(`http://127.0.0.1:5000/api/channel/${currentYoutubeId}`);
         const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${currentYoutubeId}`);
         const data = await response.json();
+
         if (response.ok) {
-          setSubscriberCount(data.channel_details?.subscriberCount || 0);
-          setViews(data.channel_details?.viewCount || 0);
-          setVideoCount(data.channel_details?.videoCount || 0);
-          setCountry(data.channel_details?.country || '');
-          setPlaylistId(data.channel_details?.all_videos_playlist || '');
+          const channelDetails = {
+            subscriberCount: data.channel_details?.subscriberCount || 0,
+            viewCount: data.channel_details?.viewCount || 0,
+            videoCount: data.channel_details?.videoCount || 0,
+            country: data.channel_details?.country || '',
+            all_videos_playlist: data.channel_details?.all_videos_playlist || ''
+          };
+
+          setSubscriberCount(channelDetails.subscriberCount);
+          setViews(channelDetails.viewCount);
+          setVideoCount(channelDetails.videoCount);
+          setCountry(channelDetails.country);
+          setPlaylistId(channelDetails.all_videos_playlist);
+
+          // Cache the data in localStorage
+          localStorage.setItem(`channelDetails-${currentYoutubeId}`, JSON.stringify(channelDetails));
         } else {
           console.error("Error fetching channel details:", data.message);
         }
@@ -53,22 +103,122 @@ export default function data() {
         console.error("Error:", error);
       }
     };
-   
-    
+
     fetchChannelDetails();
-  },[youtubeId])
+  }, [youtubeId]);
+
+
+
+  // useEffect(() => {
+  //   const fetchVideosDetails = async () => {
+  //     if (!playlistId || playlistId.length === 0) return; // Check if playlistId is available
+  //     console.log("Playlist.......",playlistId)
+  //     try {
+  //       const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-details-from-playlistId`, {
+  //         method: 'POST', // Change to POST request
+  //         headers: {
+  //           'Content-Type': 'application/json', // Specify content type
+  //         },
+  //         body: JSON.stringify({ playlistId }), // Send playlistId in the request body
+  //       });
+  //       // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/get-videos-details-from-playlistId`, {
+  //       //   method: 'POST', // Change to POST request
+  //       //   headers: {
+  //       //     'Content-Type': 'application/json', // Specify content type
+  //       //   },
+  //       //   body: JSON.stringify({ playlistId }), // Send playlistId in the request body
+  //       // });
+  //       const data = await response.json();
+  //       if (response.ok) {
+  //         // Create arrays to hold views, likes, and comments
+  //         const viewsList = [];
+  //         const likesList = [];
+  //         const commentsList = [];
+  //         const titlesList = []; // Fixed typo from titlesLise to titlesList
+  //         const thumbnailsList = []; // Fixed typo from titlesLise to titlesList
+  //         const videoIds = [];
+  //         // Iterate over each video in the data
+  //         data["videoData"].forEach(video => {
+  //           viewsList.push(video.viewCount || 0); // Add views to the list
+  //           likesList.push(video.likeCount || 0); // Add likes to the list
+  //           commentsList.push(video.commentCount || 0); // Add comments to the list
+  //           titlesList.push(video.title || ""); // Add the title of the video
+  //           thumbnailsList.push(video.thumbnails.default.url)
+  //           videoIds.push(video.video_id)
+  //         });
+
+  //         // Update state with the lists
+  //         setViews(viewsList);
+  //         setLikes(likesList); // Make sure to define this state setter
+  //         setTitles(titlesList); // Fixed typo here
+  //         setComments(commentsList); // Make sure to define this state setter
+  //         setThumbnails(thumbnailsList);
+  //         // setVideoIds(videoIds);
+  //         try {
+  //           const response = await fetch(`http://127.0.0.1:5000/api/videos/positive-sentiment-ratio`, {
+  //               method: 'POST', // Change to POST request
+  //               headers: {
+  //                   'Content-Type': 'application/json', // Specify content type
+  //               },
+  //               body: JSON.stringify({ videoIds }), // Send videoIds in the request body
+  //           });
+  //           // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/positive-sentiment-ratio`, {
+  //           //     method: 'POST', // Change to POST request
+  //           //     headers: {
+  //           //         'Content-Type': 'application/json', // Specify content type
+  //           //     },
+  //           //     body: JSON.stringify({ videoIds }), // Send videoIds in the request body
+  //           // });
+
+  //           const data = await response.json();
+
+  //           if (response.ok) {
+  //               // Extract positive percentages from the response data
+  //               const positivePercentages = Object.values(data); // Get the values from the dictionary
+
+  //               // console.log(positivePercentages); // Log the list of positive percentages
+  //               setPositiveRatio(positivePercentages)
+  //               // You can now use `positivePercentages` as needed in your application
+  //           } else {
+  //               console.error("Error fetching channel details:", data.message);
+  //           }
+  //       } catch (error) {
+  //           console.error("Error:", error);
+  //       }
+  //       } else {
+  //         console.error("Error fetching channel details:", data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error:", error);
+  //     }
+  //   };
+  //   fetchVideosDetails();
+
+  // }, [playlistId]);
+
+
   useEffect(() => {
     const fetchVideosDetails = async () => {
       if (!playlistId || playlistId.length === 0) return; // Check if playlistId is available
-      console.log("Playlist.......",playlistId)
+
+      const cachedVideosDetails = localStorage.getItem(`videos_${playlistId}`);
+      if (cachedVideosDetails) {
+        console.log("Using cached video details for playlist:", playlistId);
+        const parsedData = JSON.parse(cachedVideosDetails);
+
+        setViews(parsedData.viewsList || []);
+        setLikes(parsedData.likesList || []);
+        setTitles(parsedData.titlesList || []);
+        setComments(parsedData.commentsList || []);
+        setThumbnails(parsedData.thumbnailsList || []);
+        // setPositiveRatio(parsedData.positivePercentages || []);
+        return;
+      }
+
+      console.log("Playlist.......", playlistId);
+
       try {
         // const response = await fetch(`http://127.0.0.1:5000/api/videos/get-videos-details-from-playlistId`, {
-        //   method: 'POST', // Change to POST request
-        //   headers: {
-        //     'Content-Type': 'application/json', // Specify content type
-        //   },
-        //   body: JSON.stringify({ playlistId }), // Send playlistId in the request body
-        // });
         const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/get-videos-details-from-playlistId`, {
           method: 'POST', // Change to POST request
           headers: {
@@ -76,126 +226,144 @@ export default function data() {
           },
           body: JSON.stringify({ playlistId }), // Send playlistId in the request body
         });
+
         const data = await response.json();
+
         if (response.ok) {
-          // Create arrays to hold views, likes, and comments
+          // Create arrays to hold views, likes, comments, etc.
           const viewsList = [];
           const likesList = [];
           const commentsList = [];
-          const titlesList = []; // Fixed typo from titlesLise to titlesList
-          const thumbnailsList = []; // Fixed typo from titlesLise to titlesList
+          const titlesList = [];
+          const thumbnailsList = [];
           const videoIds = [];
+
           // Iterate over each video in the data
           data["videoData"].forEach(video => {
-            viewsList.push(video.viewCount || 0); // Add views to the list
-            likesList.push(video.likeCount || 0); // Add likes to the list
-            commentsList.push(video.commentCount || 0); // Add comments to the list
-            titlesList.push(video.title || ""); // Add the title of the video
-            thumbnailsList.push(video.thumbnails.default.url)
-            videoIds.push(video.video_id)
+            viewsList.push(video.viewCount || 0);
+            likesList.push(video.likeCount || 0);
+            commentsList.push(video.commentCount || 0);
+            titlesList.push(video.title || "");
+            thumbnailsList.push(video.thumbnails.default.url);
+            videoIds.push(video.video_id);
           });
-  
-          // Update state with the lists
-          setViews(viewsList);
-          setLikes(likesList); // Make sure to define this state setter
-          setTitles(titlesList); // Fixed typo here
-          setComments(commentsList); // Make sure to define this state setter
-          setThumbnails(thumbnailsList);
-          // setVideoIds(videoIds);
-          try {
-            // const response = await fetch(`http://127.0.0.1:5000/api/videos/positive-sentiment-ratio`, {
-            //     method: 'POST', // Change to POST request
-            //     headers: {
-            //         'Content-Type': 'application/json', // Specify content type
-            //     },
-            //     body: JSON.stringify({ videoIds }), // Send videoIds in the request body
-            // });
-            const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/videos/positive-sentiment-ratio`, {
-                method: 'POST', // Change to POST request
-                headers: {
-                    'Content-Type': 'application/json', // Specify content type
-                },
-                body: JSON.stringify({ videoIds }), // Send videoIds in the request body
-            });
-        
-            const data = await response.json();
-            
-            if (response.ok) {
-                // Extract positive percentages from the response data
-                const positivePercentages = Object.values(data); // Get the values from the dictionary
-                
-                // console.log(positivePercentages); // Log the list of positive percentages
-                setPositiveRatio(positivePercentages)
-                // You can now use `positivePercentages` as needed in your application
-            } else {
-                console.error("Error fetching channel details:", data.message);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-        }
-        } else {
-          console.error("Error fetching channel details:", data.message);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-    fetchVideosDetails();
-    
-  }, [playlistId]);
-  
-  const Project = ({ image, name }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDAvatar src={image} name={name} size="sm" variant="rounded" />
-      <MDTypography display="block" variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-        {name}
-      </MDTypography>
-    </MDBox>
-  );
 
-  const Progress = ({ color, value }) => (
-    <MDBox display="flex" alignItems="center">
-      <MDTypography variant="caption" color="text" fontWeight="medium">
-        {value}%
-      </MDTypography>
-      <MDBox ml={0.5} width="9rem">
-        <MDProgress variant="gradient" color={color} value={value} />
-      </MDBox>
-    </MDBox>
-  );
-  return {
-    columns: [
-      { Header: "Title", accessor: "Title", width: "30%", align: "left" },
-      { Header: "Views", accessor: "Views", align: "left" },
-      { Header: "Likes", accessor: "Likes", align: "center" },
-      { Header: "Comments", accessor: "Comments", align: "center" },
-      { Header: "Positive Percentage of the Comments", accessor: "positive_percentage_of_the_comments", align: "center" },
-    ],
-    rows: titles.map((title, index) => ({
-      Title: <Project name={title} image={thumbnails[index]} />,
-      Views: (
-        <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-          {views[index]}
-        </MDTypography>
-      ),
-      Likes: (
-        <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          {likes[index]}
-        </MDTypography>
-      ),
-      Comments: (
-        <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          {comments[index]}
-        </MDTypography>
-      ),
-      positive_percentage_of_the_comments:(
-        <MDTypography component="a" href="#" color="text">
-        {`${positiveRatio[index]}%`}
-      </MDTypography>
-      )
-    })),
+
+          
+          setViews(viewsList);
+          setLikes(likesList);
+          setTitles(titlesList);
+          setComments(commentsList);
+          setThumbnails(thumbnailsList);
+          const cachedData = {
+            viewsList,
+            likesList,
+            titlesList,
+            commentsList,
+            thumbnailsList
+          };
+          localStorage.setItem(`videos_${playlistId}`, JSON.stringify(cachedData));
+        
+
+        // Fetch sentiment analysis
+        // const sentimentResponse = await fetch(`http://127.0.0.1:5000/api/videos/positive-sentiment-ratio`, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({ videoIds }),
+        // });
+
+        // const sentimentData = await sentimentResponse.json();
+
+        // if (sentimentResponse.ok) {
+        //     const positivePercentages = Object.values(sentimentData);
+
+        //     // Update state
+        //     setViews(viewsList);
+        //     setLikes(likesList);
+        //     setTitles(titlesList);
+        //     setComments(commentsList);
+        //     setThumbnails(thumbnailsList);
+        //     setPositiveRatio(positivePercentages);
+
+        //     // Cache the data in localStorage
+        //     const cachedData = {
+        //         viewsList,
+        //         likesList,
+        //         titlesList,
+        //         commentsList,
+        //         thumbnailsList,
+        //         positivePercentages,
+        //     };
+        //     localStorage.setItem(`videos_${playlistId}`, JSON.stringify(cachedData));
+        // } else {
+        //     console.error("Error fetching sentiment details:", sentimentData.message);
+        // }
+      } else {
+        console.error("Error fetching video details:", data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
-  
+
+  fetchVideosDetails();
+}, [playlistId]);
+
+
+const Project = ({ image, name }) => (
+  <MDBox display="flex" alignItems="center" lineHeight={1}>
+    <MDAvatar src={image} name={name} size="sm" variant="rounded" />
+    <MDTypography display="block" variant="button" fontWeight="medium" ml={1} lineHeight={1}>
+      {name}
+    </MDTypography>
+  </MDBox>
+);
+
+const Progress = ({ color, value }) => (
+  <MDBox display="flex" alignItems="center">
+    <MDTypography variant="caption" color="text" fontWeight="medium">
+      {value}%
+    </MDTypography>
+    <MDBox ml={0.5} width="9rem">
+      <MDProgress variant="gradient" color={color} value={value} />
+    </MDBox>
+  </MDBox>
+);
+return {
+  columns: [
+    { Header: "Title", accessor: "Title", width: "30%", align: "left" },
+    { Header: "Views", accessor: "Views", align: "left" },
+    { Header: "Likes", accessor: "Likes", align: "center" },
+    { Header: "Comments", accessor: "Comments", align: "center" },
+    // { Header: "Positive Percentage of the Comments", accessor: "positive_percentage_of_the_comments", align: "center" },
+  ],
+  rows: titles.map((title, index) => ({
+    Title: <Project name={title} image={thumbnails[index]} />,
+    Views: (
+      <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
+        {views[index]}
+      </MDTypography>
+    ),
+    Likes: (
+      <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+        {likes[index]}
+      </MDTypography>
+    ),
+    Comments: (
+      <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+        {comments[index]}
+      </MDTypography>
+    ),
+    // positive_percentage_of_the_comments:(
+    //   <MDTypography component="a" href="#" color="text">
+    //   {`${positiveRatio[index]}%`}
+    // </MDTypography>
+    // )
+  })),
+};
+
   // return {
   //   columns: [
   //     { Header: "Title", accessor: "Title", width: "30%", align: "left" },

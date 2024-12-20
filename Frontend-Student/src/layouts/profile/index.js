@@ -54,7 +54,7 @@ import { useYoutube } from "context/YoutubeContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect,useState } from "react";
 function Overview() {
-  const { youtubeId,setYoutubeId,playlistId, setPlaylistId, videoIds, setVideoIds, currentYoutubeId, setCurrentYoutubeId } = useYoutube();
+  const { youtubeId,setYoutubeId,playlistId, setPlaylistId, videoIds, setVideoIds, currentYoutubeId, setCurrentYoutubeId,apiKey,setApiKey } = useYoutube();
   const [subscriberCount, setSubscriberCount] = useState(null);
   const [views, setViews] = useState(null);
   const [videoCount, setVideoCount] = useState(null);
@@ -74,7 +74,18 @@ function Overview() {
       try {
         console.log("YoutubeId tried.....", youtubeId)
         // const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`);
-        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`);
+        // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`);
+        // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`, {
+        // const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`, {
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            api :apiKey
+          }),
+        });
         const data = await response.json();
 
         if (response.ok) {

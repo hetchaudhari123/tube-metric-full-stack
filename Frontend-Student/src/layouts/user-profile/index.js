@@ -26,7 +26,7 @@ const UserProfile = () => {
 
   const { user, isAuthenticated, isLoading } = useAuth0(); // Get user from Auth0
   const [notification, setNotification] = useState(false);
-  const { youtubeId, setYoutubeId, playlistId, setPlaylistId, videoIds, setVideoIds } = useYoutube();
+  const { youtubeId, setYoutubeId, playlistId, setPlaylistId, videoIds, setVideoIds,apiKey,setApiKey,currentYoutubeId,setCurrentYoutubeId } = useYoutube();
   const [channelName, setChannelName] = useState(null)
   const [localYoutubeId, setLocalYoutubeId] = useState("");
   const [subscriberCount, setSubscriberCount] = useState(null);
@@ -41,20 +41,38 @@ const UserProfile = () => {
   const [reportsViewsVsMonth, setReportsViewsVsMonth] = useState([]); // New state for likes chart data
   const [reportsCommentAnalysis, setReportsCommentAnalysis] = useState([]); // New state for likes chart data
   const [thumbnail, setThumbnail] = useState(null);
+
+
+
+  const [localApiKey, setLocalApiKey] = useState(''); // Add state for the API key
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       // const response = await fetch(`http://127.0.0.1:5000/api/channel/${localYoutubeId}`, {
-      //   method: 'GET',
+      //   method: 'POST',
       //   headers: {
       //     'Content-Type': 'application/json',
       //   },
       // });
+      // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${localYoutubeId}`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
+
+
+      
+
+      // const response = await fetch(`http://127.0.0.1:5000/api/channel/${localYoutubeId}`, {
       const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${localYoutubeId}`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          api :apiKey
+        }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -62,6 +80,10 @@ const UserProfile = () => {
         // setChannelDetails(data); // Save the channel details to the state
         setYoutubeId(localYoutubeId); // Update global YouTube ID with the valid one
         setLocalYoutubeId("");
+        setCurrentYoutubeId(localYoutubeId);
+        
+        // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/save-youtube-data`, {
+        // const response = await fetch(`http://127.0.0.1:5000/api/save-youtube-data`, {
         const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/save-youtube-data`, {
           method: 'POST',
           headers: {
@@ -69,11 +91,54 @@ const UserProfile = () => {
           },
           body: JSON.stringify({
             email: user?.email,
-            youtubeId: localYoutubeId
+            youtubeId: localYoutubeId,
+            api:apiKey
           }),
         });
         if (response.ok) {
-          const data = await response.json();
+          console.log('Data saved successfully:', data);
+        } else {
+          console.error('Error saving data:', response.status, response.statusText);
+        }
+      } else {
+        console.error("Error fetching channel details:", data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  const handleSubmitApiKey = async (e) => {
+    e.preventDefault();
+    try {
+      // const response = await fetch(`http://127.0.0.1:5000/api/save-api`, {
+      const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/save-api`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user?.email,
+          apiKey: localApiKey
+        }),
+      });
+      // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/save-api`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     email: user?.email,
+      //     apiKey: localApiKey
+      //   }),
+      // });
+      const data = await response.json();
+      if (response.ok) {
+        setApiKey(localApiKey)
+        setLocalApiKey("")
+        console.log("Inside the handle api key....")
+        
+       
+        if (response.ok) {
           console.log('Data saved successfully:', data);
         } else {
           console.error('Error saving data:', response.status, response.statusText);
@@ -92,7 +157,18 @@ const UserProfile = () => {
       if (!youtubeId) return;
       try {
         // const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`);
-        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`);
+        
+        // const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`);
+        // const response = await fetch(`http://127.0.0.1:5000/api/channel/${youtubeId}`, {
+        const response = await fetch(`https://tube-metrics-full-stack.onrender.com/api/channel/${youtubeId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            api :apiKey
+          }),
+        });
         const data = await response.json();
         if (response.ok) {
           setSubscriberCount(data.channel_details?.subscriberCount || 0);
@@ -192,30 +268,53 @@ const UserProfile = () => {
           {/* Additional user profile details can be added here if needed */}
 
         </MDBox>
-        <MDBox display="flex" alignItems="center" ml="auto">
+        {/* <MDBox display="flex" alignItems="center" ml="auto">
           <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+            <MDInput
+              label="Enter your YouTube ID"
+              value={localYoutubeId} 
+              onChange={(e) => setLocalYoutubeId(e.target.value)} 
+              sx={{ mr: 1 }} 
+            />
+
+            <MDButton type="submit" variant="gradient" color="info" sx={{ mr: 1 }}>
+              Save
+            </MDButton>
+          </form>
+        </MDBox> */}
+
+        <MDBox display="flex" justifyContent="space-between" alignItems="center" width="100%">
+          {/* YouTube ID Field and Save Button */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             <MDInput
               label="Enter your YouTube ID"
               value={localYoutubeId} // Bind input to local state
               onChange={(e) => setLocalYoutubeId(e.target.value)} // Update local input field state
               sx={{ mr: 1 }} // Add margin to the right for spacing
+              fullWidth
             />
-            <MDButton type="submit" variant="gradient" color="info" sx={{ mr: 1 }}>
+            <MDButton type="submit" variant="gradient" color="info">
               Save
             </MDButton>
-            {/* <IconButton size="small" onClick={handleConfiguratorOpen}>
-                <Icon>settings</Icon>
-              </IconButton> */}
-            {/* <MDButton
-                variant="gradient"
-                color="info"
-                onClick={handleLogOut}
-                sx={{ ml: 1 }} // Add margin to the left for spacing
-              >
-                Log Out
-              </MDButton> */}
+          </form>
+
+          {/* API Key Field and Save Button */}
+          {/* <form onSubmit={handleSubmitApiKey} style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '1rem' }}> */}
+          <form onSubmit={handleSubmitApiKey} style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '1rem' }}>
+            <MDInput
+              label="Enter your API Key"
+              type="password" // Set input type to password
+              value={localApiKey} // Bind input to local state
+              onChange={(e) => setLocalApiKey(e.target.value)} // Update local input field state
+              sx={{ mr: 1 }} // Add margin to the right for spacing
+              fullWidth
+            />
+            <MDButton type="submit" variant="gradient" color="info">
+              Save
+            </MDButton>
           </form>
         </MDBox>
+
       </Header>
       <Footer />
     </DashboardLayout>
