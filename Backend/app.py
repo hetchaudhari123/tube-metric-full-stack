@@ -1320,15 +1320,13 @@ def get_channels_details():
 
     all_data = []
 
-    request_data = request.get_json()
-    api = request_data.get('apiKey',None)
+    api = data.get('apiKey',None)
     try:
         # Make the API request to get channel details
         url = "https://www.googleapis.com/youtube/v3/channels"
         params = {
             'part': 'snippet,contentDetails,statistics',
             'id': ','.join(channel_ids),
-            # 'key': os.getenv('API_KEY')
         'key': api if api is not None else os.getenv('API_KEY')
 
         }
@@ -1453,7 +1451,6 @@ def info_videos_playlist():
         request_data = request.get_json()
         channelDetails = request_data.get('channelDetails', None)  # Get channel details from the request
         
-        request_data = request.get_json()
         api = request_data.get('apiKey',None)
 
         # Validate input
@@ -1568,7 +1565,6 @@ def calculate_sentiment_analysis_multichannels():
     try:
         request_data = request.get_json()
         api = request_data.get('apiKey',None)
-        request_data = request.get_json()
         # print("request_data.........",request_data)
         video_details_list = request_data.get('channels_info')
         print("video_details_list..........",video_details_list)
