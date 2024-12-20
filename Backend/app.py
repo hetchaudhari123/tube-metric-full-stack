@@ -1309,7 +1309,7 @@ import os
 import requests
 
 @app.route('/api/videos/get-channels-details', methods=['POST'])
-def get_channels_details(api = None):
+def get_channels_details():
     # Get the JSON data from the request
     data = request.get_json()
     channel_ids = data.get('channel_ids', None)  # Extract channel_ids
@@ -1320,6 +1320,8 @@ def get_channels_details(api = None):
 
     all_data = []
 
+    request_data = request.get_json()
+    api = request_data.get('apiKey',None)
     try:
         # Make the API request to get channel details
         url = "https://www.googleapis.com/youtube/v3/channels"
